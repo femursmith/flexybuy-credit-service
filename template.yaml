@@ -48,6 +48,15 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .csv
+            Function: !GetAtt MetricAnalyzerFunction.Arn
 
   # --- DynamoDB Tables ---
   CreditProfileTable:
@@ -93,6 +102,7 @@ Resources:
     DependsOn:
       - S3UploadQueue
       - CsvDestinationBucket
+      - StatementUploadsBucket
     Properties:
       FunctionName: !Sub "${AWS::StackName}-pdf-converter-lambda"
       CodeUri: pdf_converter/
@@ -114,6 +124,19 @@ Resources:
           Properties:
             Queue: !GetAtt S3UploadQueue.Arn
             BatchSize: 1
+
+    
+  MetricAnalyzerFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MetricAnalyzerFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt CsvDestinationBucket.Arn
+
+
+
 
   MetricAnalyzerFunction:
     Type: AWS::Serverless::Function
@@ -137,18 +160,7 @@ Resources:
       Environment:
         Variables:
           DYNAMODB_TABLE: !Ref CreditProfileTable
-      Events:
-        S3UploadTrigger:
-          Type: S3
-          Properties:
-            Bucket: !Ref CsvDestinationBucket
-            Events: s3:ObjectCreated:*
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: suffix
-                    Value: .csv
-    
+      
   CreditLimitEngineFunction:
     Type: AWS::Serverless::Function
     Properties:
