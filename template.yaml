@@ -90,6 +90,9 @@ Resources:
   # --- Lambda Functions ---
   PdfToCsvConverterFunction:
     Type: AWS::Serverless::Function
+    DependsOn:
+      - S3UploadQueue
+      - CsvDestinationBucket
     Properties:
       FunctionName: !Sub "${AWS::StackName}-pdf-converter-lambda"
       CodeUri: pdf_converter/
@@ -114,6 +117,8 @@ Resources:
 
   MetricAnalyzerFunction:
     Type: AWS::Serverless::Function
+    DependsOn:
+      - CsvDestinationBucket
     Properties:
       FunctionName: !Sub "${AWS::StackName}-metric-analyzer-lambda"
       CodeUri: metric_analyzer/
@@ -143,7 +148,7 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: .csv
-
+    
   CreditLimitEngineFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -153,6 +158,8 @@ Resources:
       Runtime: python3.11
       MemorySize: 2048 # Higher memory for fuzzy logic libraries
       Timeout: 90 # Longer timeout for complex calculations
+      Layers:
+        - !Ref CreditLimitEngineLayers
       Policies:
         - AWSLambdaBasicExecutionRole # For CloudWatch Logs
         - DynamoDBStreamReadPolicy:
