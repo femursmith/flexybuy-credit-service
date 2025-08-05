@@ -175,6 +175,17 @@ Resources:
             StartingPosition: LATEST
             BatchSize: 10
 
+  CreditLimitEngineLayers:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-credit-limit-engine-layers"
+      Description: "Layer for Credit Limit Engine dependencies"
+      ContentUri: dependencies/credit_limit_engine/
+      CompatibleRuntimes:
+        - python3.11
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+  
   ProfileUpdateFunction:
     Type: AWS::Serverless::Function
     Properties:
