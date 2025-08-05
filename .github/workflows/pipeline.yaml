@@ -83,11 +83,7 @@ jobs:
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
-      - name: Upgrade g++
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y g++-12
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
+      
       - run: sam build --template ${SAM_TEMPLATE} --use-container
 
       - name: Assume the testing pipeline user role
@@ -194,8 +190,15 @@ jobs:
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
+      
       - name: Deploy to testing account
         run: |
+          STACK_STATUS=$(aws cloudformation describe-stacks --stack-name dev --region us-east-1 --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "DELETE")
+          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" ]]; then
+          aws cloudformation delete-stack --stack-name dev --region us-east-1
+          echo "Stack in ROLLBACK_COMPLETE, deleted for redeployment."
+          aws cloudformation wait stack-delete-complete --stack-name dev --region us-east-1
+          fi
           sam deploy --stack-name ${TESTING_STACK_NAME} \
             --template packaged-testing.yaml \
             --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM\
