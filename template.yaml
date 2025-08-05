@@ -141,7 +141,7 @@ Resources:
       MemorySize: 2048 # Higher memory for processing libraries
       Timeout: 90 # Longer timeout for file conversion
       Layers:
-        - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p311-PyMuPDF:1
+        - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p311-PyMuPDF:10
       Policies:
         - AWSLambdaBasicExecutionRole # For CloudWatch Logs
         - S3ReadPolicy:
