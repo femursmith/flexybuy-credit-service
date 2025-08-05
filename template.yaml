@@ -1,0 +1,295 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  FinPay Credit Service: A serverless application for dynamic credit limit management.
+  This template defines the complete infrastructure for an environment, using the
+  stack name (e.g., 'finpay-dev') to derive resource names.
+
+Resources:
+  # --- API Gateway ---
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+
+  # --- SQS Queues ---
+  S3UploadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-uploads-queue"
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt S3UploadDLQ.Arn
+        maxReceiveCount: 3
+
+  S3UploadDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub "${AWS::StackName}-uploads-dlq"
+
+  # --- S3 Buckets ---
+  StatementUploadsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-documents-uploads-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:*
+            Queue: !GetAtt S3UploadQueue.Arn
+
+  CsvDestinationBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-documents-processed-bucket"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  # --- DynamoDB Tables ---
+  CreditProfileTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-credit-profile-table"
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  CreditLimitTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-credit-limit-table"
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  # --- SNS Topics ---
+  ErrorNotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-error-notification-topic"
+
+  ScoreUpdateTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub "${AWS::StackName}-score-update-topic"
+
+  # --- Lambda Functions ---
+  PdfToCsvConverterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-pdf-converter-lambda"
+      CodeUri: pdf_converter/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 2048 # Higher memory for processing libraries
+      Timeout: 90 # Longer timeout for file conversion
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - S3ReadPolicy:
+            BucketName: !Ref StatementUploadsBucket
+        - S3WritePolicy:
+            BucketName: !Ref CsvDestinationBucket
+      Events:
+        SqsTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt S3UploadQueue.Arn
+            BatchSize: 1
+
+  MetricAnalyzerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-metric-analyzer-lambda"
+      CodeUri: metric_analyzer/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - S3ReadPolicy:
+            BucketName: !Ref CsvDestinationBucket
+        - DynamoDBWritePolicy:
+            TableName: !Ref CreditProfileTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref CreditProfileTable
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref CreditProfileTable
+      Events:
+        S3UploadTrigger:
+          Type: S3
+          Properties:
+            Bucket: !Ref CsvDestinationBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .csv
+
+  CreditLimitEngineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-credit-engine-lambda"
+      CodeUri: credit_limit_engine/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 2048 # Higher memory for fuzzy logic libraries
+      Timeout: 90 # Longer timeout for complex calculations
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - DynamoDBStreamReadPolicy:
+            TableName: !Ref CreditProfileTable
+            StreamName: !GetAtt CreditProfileTable.StreamArn
+        - DynamoDBWritePolicy:
+            TableName: !Ref CreditLimitTable
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt ScoreUpdateTopic.TopicName
+      Environment:
+        Variables:
+          CREDIT_PROFILE_TABLE: !Ref CreditProfileTable
+          CREDIT_LIMIT_TABLE: !Ref CreditLimitTable
+          SCORE_UPDATE_TOPIC_ARN: !Ref ScoreUpdateTopic
+      Events:
+        ProfileUpdateTrigger:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt CreditProfileTable.StreamArn
+            StartingPosition: LATEST
+            BatchSize: 10
+
+  ProfileUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-profile-update-lambda"
+      CodeUri: profile_update/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - DynamoDBWritePolicy:
+            TableName: !Ref CreditProfileTable
+      Events:
+        ProfileApi:
+          Type: HttpApi
+          Properties:
+            Path: /profile
+            Method: post
+            ApiId: !Ref HttpApi
+        KycApi:
+          Type: HttpApi
+          Properties:
+            Path: /kyc_answers
+            Method: post
+            ApiId: !Ref HttpApi
+        FinActivityApi:
+          Type: HttpApi
+          Properties:
+            Path: /fin_activity
+            Method: post
+            ApiId: !Ref HttpApi
+
+  CreditLimitGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-limit-get-lambda"
+      CodeUri: limit_get/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - DynamoDBReadPolicy:
+            TableName: !Ref CreditLimitTable
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /limit/{userId}
+            Method: get
+            ApiId: !Ref HttpApi
+
+  ErrorHandlingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-error-handler-lambda"
+      CodeUri: error_handler/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - SNSPublishMessagePolicy:
+            TopicName: !GetAtt ErrorNotificationTopic.TopicName
+      Events:
+        SqsTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt S3UploadDLQ.Arn
+            BatchSize: 1
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint URL for the service"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+  StatementUploadsBucketName:
+    Description: "Name of the S3 bucket for initial statement uploads"
+    Value: !Ref StatementUploadsBucket
+  CsvDestinationBucketName:
+    Description: "Name of the S3 bucket for processed CSV statements"
+    Value: !Ref CsvDestinationBucket
+  CreditProfileTableName:
+    Description: "Name of the DynamoDB table for user credit profiles"
+    Value: !Ref CreditProfileTable
+  CreditLimitTableName:
+    Description: "Name of the DynamoDB table for user credit limits"
+    Value: !Ref CreditLimitTable
+  S3UploadQueueUrl:
+    Description: "URL of the SQS queue for S3 upload events"
+    Value: !Ref S3UploadQueue
+  S3UploadDLQUrl:
+    Description: "URL of the SQS dead-letter queue for S3 upload events"
+    Value: !Ref S3UploadDLQ
+  ErrorNotificationTopicArn:
+    Description: "ARN of the SNS topic for error notifications"
+    Value: !Ref ErrorNotificationTopic
+  ScoreUpdateTopicArn:
+    Description: "ARN of the SNS topic for score update notifications"
+    Value: !Ref ScoreUpdateTopic
+  PdfToCsvConverterFunctionArn:
+    Description: "ARN of the PDF to CSV Converter Lambda function"
+    Value: !GetAtt PdfToCsvConverterFunction.Arn
+  MetricAnalyzerFunctionArn:
+    Description: "ARN of the Metric Analyzer Lambda function"
+    Value: !GetAtt MetricAnalyzerFunction.Arn
+  CreditLimitEngineFunctionArn:
+    Description: "ARN of the Credit Limit Engine Lambda function"
+    Value: !GetAtt CreditLimitEngineFunction.Arn
+  ProfileUpdateFunctionArn:
+    Description: "ARN of the Profile Update Lambda function"
+    Value: !GetAtt ProfileUpdateFunction.Arn
+  CreditLimitGetFunctionArn:
+    Description: "ARN of the Credit Score Get Lambda function"
+    Value: !GetAtt CreditLimitGetFunction.Arn
+  ErrorHandlingFunctionArn:
+    Description: "ARN of the Error Handling Lambda function"
+    Value: !GetAtt ErrorHandlingFunction.Arn
