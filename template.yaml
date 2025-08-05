@@ -155,7 +155,7 @@ Resources:
           Type: S3
           Properties:
             Bucket: !Ref CsvDestinationBucket
-            Events: s3:PutObject
+            Events: s3:ObjectCreated:*
             Filter:
               S3Key:
                 Rules:
