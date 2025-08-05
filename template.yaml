@@ -68,7 +68,6 @@ Resources:
 
   CsvDestinationBucket:
     Type: AWS::S3::Bucket
-    DependsOn: MetricAnalyzerFunctionPermission
     Properties:
       BucketName: !Sub "${AWS::StackName}-documents-processed-bucket"
       PublicAccessBlockConfiguration:
@@ -139,7 +138,6 @@ Resources:
           Properties:
             Queue: !GetAtt S3UploadQueue.Arn
             BatchSize: 1
-
 
 
   MetricAnalyzerFunction:
