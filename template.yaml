@@ -18,6 +18,22 @@ Resources:
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt S3UploadDLQ.Arn
         maxReceiveCount: 3
+  
+  S3UploadQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref S3UploadQueue
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: 'sqs:SendMessage'
+            Resource: !GetAtt S3UploadQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Sub "arn:aws:s3:::${AWS::StackName}-documents-uploads-bucket"
 
   S3UploadDLQ:
     Type: AWS::SQS::Queue
