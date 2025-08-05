@@ -60,7 +60,6 @@ Resources:
               - Sid: AllowReadProcessedBucket
                 Effect: Allow
                 Action: s3:GetObject
-                # Notice we refer to the bucket *name* via Sub, not Ref!
                 Resource: !Sub "arn:aws:s3:::${AWS::StackName}-documents-processed-bucket/*"
               - Sid: AllowWriteProcessedBucket
                 Effect: Allow
@@ -127,10 +126,6 @@ Resources:
   # --- Lambda Functions ---
   PdfToCsvConverterFunction:
     Type: AWS::Serverless::Function
-    DependsOn:
-      - S3UploadQueue
-      - CsvDestinationBucket
-      - StatementUploadsBucket
     Properties:
       FunctionName: !Sub "${AWS::StackName}-pdf-converter-lambda"
       CodeUri: pdf_converter/
@@ -168,8 +163,6 @@ Resources:
 
   MetricAnalyzerFunction:
     Type: AWS::Serverless::Function
-    DependsOn:
-      - CsvDestinationBucket
     Properties:
       FunctionName: !Sub "${AWS::StackName}-metric-analyzer-lambda"
       CodeUri: metric_analyzer/
