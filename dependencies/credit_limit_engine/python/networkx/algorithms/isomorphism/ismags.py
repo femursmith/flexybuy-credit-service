@@ -848,11 +848,11 @@ class ISMAGS:
             left_to_map = to_be_mapped - set(mapping.keys())
 
             new_candidates = candidates.copy()
-            sgn_neighbours = set(self.subgraph[sgn])
-            not_gn_neighbours = set(self.graph.nodes) - set(self.graph[gn])
+            sgn_nbrs = set(self.subgraph[sgn])
+            not_gn_nbrs = set(self.graph.nodes) - set(self.graph[gn])
             for sgn2 in left_to_map:
-                if sgn2 not in sgn_neighbours:
-                    gn2_options = not_gn_neighbours
+                if sgn2 not in sgn_nbrs:
+                    gn2_options = not_gn_nbrs
                 else:
                     # Get all edges to gn of the right color:
                     g_edges = self._edges_of_same_color(sgn, sgn2)
@@ -882,10 +882,7 @@ class ISMAGS:
 
             # The next node is the one that is unmapped and has fewest
             # candidates
-            # Pylint disables because it's a one-shot function.
-            next_sgn = min(
-                left_to_map, key=lambda n: min(new_candidates[n], key=len)
-            )  # pylint: disable=cell-var-from-loop
+            next_sgn = min(left_to_map, key=lambda n: min(new_candidates[n], key=len))
             yield from self._map_nodes(
                 next_sgn,
                 new_candidates,
@@ -909,10 +906,7 @@ class ISMAGS:
         # "part of" the subgraph in to_be_mapped, and we make it a little
         # smaller every iteration.
 
-        # pylint disable because it's guarded against by default value
-        current_size = len(
-            next(iter(to_be_mapped), [])
-        )  # pylint: disable=stop-iteration-return
+        current_size = len(next(iter(to_be_mapped), []))
 
         found_iso = False
         if current_size <= len(self.graph):
@@ -1093,9 +1087,20 @@ class ISMAGS:
         else:
             cosets = cosets.copy()
 
-        assert all(
+        if not all(
             len(t_p) == len(b_p) for t_p, b_p in zip(top_partitions, bottom_partitions)
-        )
+        ):
+            # This used to be an assertion, but it gets tripped in rare cases:
+            # 5 - 4 \     / 12 - 13
+            #        0 - 3
+            # 9 - 8 /     \ 16 - 17
+            # Assume 0 and 3 are coupled and no longer equivalent. At that point
+            # {4, 8} and {12, 16} are no longer equivalent, and neither are
+            # {5, 9} and {13, 17}. Coupling 4 and refinement results in 5 and 9
+            # getting their own partitions, *but not 13 and 17*. Further
+            # iterations will attempt to couple 5 to {13, 17}, which cannot
+            # result in more symmetries?
+            return [], cosets
 
         # BASECASE
         if all(len(top) == 1 for top in top_partitions):

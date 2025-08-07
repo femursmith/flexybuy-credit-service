@@ -36,7 +36,7 @@ CONFIG = _cleanup(
             "cython": {
                 "name": r"cython",
                 "linker": r"cython",
-                "version": r"3.0.10",
+                "version": r"3.0.12",
                 "commands": r"cython",
                 "args": r"",
                 "linker args": r"",
@@ -58,8 +58,8 @@ CONFIG = _cleanup(
                 "linker args": r"",
             },
             "pythran": {
-                "version": r"0.15.0",
-                "include directory": r"../../tmp/pip-build-env-buf8o3q2/overlay/lib/python3.9/site-packages/pythran"
+                "version": r"0.17.0",
+                "include directory": r"../../tmp/pip-build-env-4uho68t1/overlay/lib/python3.11/site-packages/pythran"
             },
         },
         "Machine Information": {
@@ -79,35 +79,35 @@ CONFIG = _cleanup(
         },
         "Build Dependencies": {
             "blas": {
-                "name": "openblas",
+                "name": "scipy-openblas",
                 "found": bool("True".lower().replace('false', '')),
-                "version": "0.3.27",
+                "version": "0.3.28",
                 "detection method": "pkgconfig",
-                "include directory": r"/usr/local/include",
-                "lib directory": r"/usr/local/lib",
-                "openblas configuration": r"USE_64BITINT=0 DYNAMIC_ARCH=1 DYNAMIC_OLDER= NO_CBLAS= NO_LAPACK= NO_LAPACKE= NO_AFFINITY=1 USE_OPENMP= ZEN MAX_THREADS=64",
-                "pc file directory": r"/usr/local/lib/pkgconfig",
+                "include directory": r"/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas32/include",
+                "lib directory": r"/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas32/lib",
+                "openblas configuration": r"OpenBLAS 0.3.28 DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+                "pc file directory": r"/project",
             },
             "lapack": {
-                "name": "openblas",
+                "name": "scipy-openblas",
                 "found": bool("True".lower().replace('false', '')),
-                "version": "0.3.27",
+                "version": "0.3.28",
                 "detection method": "pkgconfig",
-                "include directory": r"/usr/local/include",
-                "lib directory": r"/usr/local/lib",
-                "openblas configuration": r"USE_64BITINT=0 DYNAMIC_ARCH=1 DYNAMIC_OLDER= NO_CBLAS= NO_LAPACK= NO_LAPACKE= NO_AFFINITY=1 USE_OPENMP= ZEN MAX_THREADS=64",
-                "pc file directory": r"/usr/local/lib/pkgconfig",
+                "include directory": r"/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas32/include",
+                "lib directory": r"/opt/_internal/cpython-3.11.10/lib/python3.11/site-packages/scipy_openblas32/lib",
+                "openblas configuration": r"OpenBLAS 0.3.28 DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+                "pc file directory": r"/project",
             },
             "pybind11": {
                 "name": "pybind11",
-                "version": "2.12.0",
+                "version": "2.13.6",
                 "detection method": "config-tool",
                 "include directory": r"unknown",
             },
         },
         "Python Information": {
-            "path": r"/opt/python/cp39-cp39/bin/python",
-            "version": "3.9",
+            "path": r"/opt/python/cp311-cp311/bin/python",
+            "version": "3.11",
         },
     }
 )
