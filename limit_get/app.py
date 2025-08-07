@@ -17,26 +17,18 @@ class DecimalEncoder(json.JSONEncoder):
         # Let the base class default method raise the TypeError
         return super(DecimalEncoder, self).default(obj)
 
-# --- Configuration ---
-# Use an environment variable for the table name for better configuration management.
+
 TABLE_NAME = os.environ.get('CreditLimitTable')
 
-# --- AWS Client Initialization ---
-# Initialize the DynamoDB resource outside the handler for performance reuse.
+
 dynamodb_resource = boto3.resource('dynamodb')
 table = dynamodb_resource.Table(TABLE_NAME)
 
 
-#TODO: Change access control of response to domain
+
 
 def lambda_handler(event, context):
-    """
-    This function is triggered by an API Gateway GET request.
-    It retrieves a user's complete credit profile from the DynamoDB table
-    and returns it.
-
-    API Gateway Path: /score/{userId}
-    """
+    
     print(f"Received event: {event}")
 
     try:
@@ -68,12 +60,11 @@ def lambda_handler(event, context):
             if 'score' in item:
                 response_data = {
                     'userId': item.get('userId'),
-                    'score': item.get('score')
+                    'limit': item.get('limit')
                 }
                 print(f"User found with score. Returning: {response_data}")
                 return {
                     'statusCode': 200,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps(response_data, cls=DecimalEncoder)
                 }
             else:
@@ -85,7 +76,6 @@ def lambda_handler(event, context):
                 print(f"User found but score is pending. Returning: {response_data}")
                 return {
                     'statusCode': 202,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps(response_data)
                 }
         else:
@@ -93,10 +83,6 @@ def lambda_handler(event, context):
             print(f"User with userId: {user_id} not found.")
             return {
                 'statusCode': 404,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*' # Or your specific domain
-                },
                 'body': json.dumps({'error': 'User not found.'})
             }
 
@@ -105,9 +91,5 @@ def lambda_handler(event, context):
         print(f"An unexpected error occurred: {e}")
         return {
             'statusCode': 500,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*' # Or your specific domain
-            },
             'body': json.dumps({'error': 'An internal server error occurred.'})
         }

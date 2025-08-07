@@ -17,23 +17,48 @@ def lambda_handler(event, context):
     
     timestamp = datetime.utcnow().isoformat() + 'Z'
 
+   
+    user_exists = False
+    try:
+        resp = dynamodb.get_item(
+            TableName=TABLE_NAME,
+            Key={'userId': {'S': user_id}},
+            ProjectionExpression='userId'
+        )
+        user_exists = 'Item' in resp
+    except Exception:
+        user_exists = False
+
+   
+    
+
     try:
         if routeKey == 'POST /profile':
             core_profile = body.get('coreProfile')
             if not core_profile:
                 return _response(400, 'coreProfile is required')
-
+            if not user_exists:
+                update_expression = 'SET coreProfile = :coreProfile, profileLastUpdatedAt = :updatedAt, profileCreatedAt = :profileCreatedAt, correctionFactor = :correctionFactor'
+            expression_values = {
+                ':coreProfile': {'M': _format_map(core_profile)},
+                ':updatedAt': {'S': timestamp},
+                ':profileCreatedAt': {'S': timestamp},
+                ':correctionFactor': {'N': '0.8'}
+            }
             update_expression = 'SET coreProfile = :coreProfile, profileLastUpdatedAt = :updatedAt'
             expression_values = {
                 ':coreProfile': {'M': _format_map(core_profile)},
-                ':updatedAt': {'S': timestamp}
+                ':updatedAt': {'S': timestamp},
             }
 
         elif routeKey == 'POST /kyc_answers':
+            if not user_exists:
+                return _response(404, 'User does not exist. Please create a profile first.')
+            
             kyc_answers = body.get('kycAnswers')
             if not kyc_answers:
                 return _response(400, 'kycAnswers is required')
-
+            
             update_expression = 'SET kycAnswers = :kycAnswers, profileLastUpdatedAt = :updatedAt'
             expression_values = {
                 ':kycAnswers': {'M': _format_map(kyc_answers)},
@@ -41,6 +66,9 @@ def lambda_handler(event, context):
             }
 
         elif routeKey == 'POST /fin_activity':
+            if not user_exists:
+                return _response(404, 'User does not exist. Please create a profile first.')
+            
             fin_metrics = body.get('finActivityMetrics')
             if not fin_metrics:
                 return _response(400, 'finActivityMetrics is required')
@@ -54,7 +82,7 @@ def lambda_handler(event, context):
         else:
             return _response(404, 'Unsupported path or method')
 
-        # Perform update
+
         dynamodb.update_item(
             TableName=TABLE_NAME,
             Key={'userId': {'S': user_id}},

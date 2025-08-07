@@ -309,6 +309,31 @@ Resources:
         Variables:
           DYNAMODB_TABLE: !Ref CreditLimitTable
 
+  CorrectionFactorUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-correction-factor-update-lambda"
+      CodeUri: correction_factor_update/
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+        - AWSLambdaBasicExecutionRole 
+        - DynamoDBWritePolicy:
+            TableName: !Ref CreditProfileTable
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /correction_factor/{userId}
+            Method: post
+            ApiId: !Ref HttpApi
+      Environment:
+        Variables:
+          CREDIT_PROFILE_TABLE: !Ref CreditProfileTable
+
+
   ErrorHandlingFunction:
     Type: AWS::Serverless::Function
     Properties:

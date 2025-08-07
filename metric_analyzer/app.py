@@ -172,7 +172,7 @@ def analyze_bank_statement_csv(csv_content, user_id):
         elif trans['debit'] > 0:
             monthly_expenditure[month_key] += trans['debit']
 
-    # --- Step 4: Calculate Final Metrics ---
+    
     income_values = list(monthly_income.values())
     expenditure_values = list(monthly_expenditure.values())
     
