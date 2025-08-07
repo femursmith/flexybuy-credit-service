@@ -1,0 +1,8 @@
+{
+  "httpMethod": "POST",
+  "path": "/correction-factor",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "body": "{\"userId\": \"user-123\", \"correction_factor\": 0.75}"
+}

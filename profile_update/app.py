@@ -78,6 +78,20 @@ def lambda_handler(event, context):
                 ':metrics': {'M': _format_map(fin_metrics)},
                 ':updatedAt': {'S': timestamp}
             }
+        
+        elif routeKey == 'POST /correction_factor':
+            if not user_exists:
+                return _response(404, 'User does not exist. Please create a profile first.')
+            
+            correction_factor = body.get('correction_factor')
+            if correction_factor is None or not (0 < correction_factor < 1):
+                return _response(400, 'correction_factor must be between 0 and 1 (exclusive).')
+
+            update_expression = 'SET correctionFactor = :cf, profileLastUpdatedAt = :updatedAt'
+            expression_values = {
+                ':correctionFactor': {'N': str(correction_factor)},
+                ':updatedAt': {'S': timestamp}
+            }
 
         else:
             return _response(404, 'Unsupported path or method')

@@ -7,8 +7,11 @@ table_name = os.environ.get('CREDIT_PROFILE_TABLE')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
-    user_id = event.get('pathParameters', {}).get('userId')
+    body = json.loads(event.get('body', '{}'))
+    
+    user_id = body.get('userId')
    
+    print(user_id)
     if not user_id:
         return {
             "statusCode": 400,
@@ -36,7 +39,6 @@ def lambda_handler(event, context):
 
 
     try:
-        body = json.loads(event.get('body', '{}'))
         correction_factor = float(body.get('correction_factor', None))
     except (ValueError, TypeError):
         return {

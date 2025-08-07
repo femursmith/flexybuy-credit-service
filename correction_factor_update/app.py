@@ -11,6 +11,7 @@ def lambda_handler(event, context):
     
     user_id = body.get('userId')
    
+    print(user_id)
     if not user_id:
         return {
             "statusCode": 400,
@@ -20,7 +21,7 @@ def lambda_handler(event, context):
     user_exists = False
     try:
         resp = dynamodb.get_item(
-            TableName=table,
+            TableName=table_name,
             Key={'userId': {'S': user_id}},
             ProjectionExpression='userId'
         )
