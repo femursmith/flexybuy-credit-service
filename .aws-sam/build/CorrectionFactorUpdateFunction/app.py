@@ -7,9 +7,7 @@ table_name = os.environ.get('CREDIT_PROFILE_TABLE')
 table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
-    body = json.loads(event.get('body', '{}'))
-    
-    user_id = body.get('userId')
+    user_id = event.get('pathParameters', {}).get('userId')
    
     if not user_id:
         return {
@@ -20,7 +18,7 @@ def lambda_handler(event, context):
     user_exists = False
     try:
         resp = dynamodb.get_item(
-            TableName=table,
+            TableName=table_name,
             Key={'userId': {'S': user_id}},
             ProjectionExpression='userId'
         )
@@ -38,6 +36,7 @@ def lambda_handler(event, context):
 
 
     try:
+        body = json.loads(event.get('body', '{}'))
         correction_factor = float(body.get('correction_factor', None))
     except (ValueError, TypeError):
         return {

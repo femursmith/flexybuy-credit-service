@@ -330,7 +330,7 @@ Resources:
         ApiEvent:
           Type: HttpApi
           Properties:
-            Path: /correction_factor/{userId}
+            Path: /correction_factor
             Method: post
             ApiId: !Ref HttpApi
       Environment:

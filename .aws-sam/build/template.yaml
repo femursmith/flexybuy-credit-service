@@ -161,7 +161,7 @@ Resources:
     Properties:
       FunctionName:
         Fn::Sub: ${AWS::StackName}-pdf-converter-lambda
-      CodeUri: ..\..\pdf_converter
+      CodeUri: PdfToCsvConverterFunction
       Handler: app.lambda_handler
       Runtime: python3.11
       MemorySize: 2048
@@ -189,12 +189,14 @@ Resources:
         Variables:
           CSV_DESTINATION_BUCKET:
             Ref: CsvDestinationBucket
+    Metadata:
+      SamResourceId: PdfToCsvConverterFunction
   MetricAnalyzerFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName:
         Fn::Sub: ${AWS::StackName}-metric-analyzer-lambda
-      CodeUri: ..\..\metric_analyzer
+      CodeUri: MetricAnalyzerFunction
       Handler: app.lambda_handler
       Runtime: python3.11
       MemorySize: 256
@@ -219,6 +221,8 @@ Resources:
         Variables:
           CREDIT_PROFILE_TABLE:
             Ref: CreditProfileTable
+    Metadata:
+      SamResourceId: MetricAnalyzerFunction
   CreditLimitEngineFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -284,7 +288,7 @@ Resources:
     Properties:
       FunctionName:
         Fn::Sub: ${AWS::StackName}-profile-update-lambda
-      CodeUri: ..\..\profile_update
+      CodeUri: ProfileUpdateFunction
       Handler: app.lambda_handler
       Runtime: python3.11
       MemorySize: 256
@@ -292,6 +296,9 @@ Resources:
       Policies:
       - AWSLambdaBasicExecutionRole
       - DynamoDBWritePolicy:
+          TableName:
+            Ref: CreditProfileTable
+      - DynamoDBReadPolicy:
           TableName:
             Ref: CreditProfileTable
       Events:
@@ -320,12 +327,14 @@ Resources:
         Variables:
           CREDIT_PROFILE_TABLE:
             Ref: CreditProfileTable
+    Metadata:
+      SamResourceId: ProfileUpdateFunction
   CreditLimitGetFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName:
         Fn::Sub: ${AWS::StackName}-limit-get-lambda
-      CodeUri: ..\..\limit_get
+      CodeUri: CreditLimitGetFunction
       Handler: app.lambda_handler
       Runtime: python3.11
       MemorySize: 256
@@ -345,14 +354,48 @@ Resources:
               Ref: HttpApi
       Environment:
         Variables:
-          DYNAMODB_TABLE:
+          CreditLimitTable:
             Ref: CreditLimitTable
+    Metadata:
+      SamResourceId: CreditLimitGetFunction
+  CorrectionFactorUpdateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${AWS::StackName}-correction-factor-update-lambda
+      CodeUri: CorrectionFactorUpdateFunction
+      Handler: app.lambda_handler
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - DynamoDBWritePolicy:
+          TableName:
+            Ref: CreditProfileTable
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: CreditProfileTable
+      Events:
+        ApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /correction_factor/{userId}
+            Method: post
+            ApiId:
+              Ref: HttpApi
+      Environment:
+        Variables:
+          CREDIT_PROFILE_TABLE:
+            Ref: CreditProfileTable
+    Metadata:
+      SamResourceId: CorrectionFactorUpdateFunction
   ErrorHandlingFunction:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName:
         Fn::Sub: ${AWS::StackName}-error-handler-lambda
-      CodeUri: ..\..\error_handler
+      CodeUri: ErrorHandlingFunction
       Handler: app.lambda_handler
       Runtime: python3.11
       MemorySize: 256
@@ -373,6 +416,8 @@ Resources:
               - S3UploadDLQ
               - Arn
             BatchSize: 1
+    Metadata:
+      SamResourceId: ErrorHandlingFunction
 Outputs:
   ApiEndpoint:
     Description: API Gateway endpoint URL for the service
