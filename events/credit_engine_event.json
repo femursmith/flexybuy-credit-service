@@ -1,0 +1,373 @@
+{
+  "Records": [
+    {
+      "eventID": "231ddb64d2a96359554a9914de53310e",
+      "eventName": "MODIFY",
+      "eventVersion": "1.1",
+      "eventSource": "aws:dynamodb",
+      "awsRegion": "us-east-1",
+      "dynamodb": {
+        "ApproximateCreationDateTime": 1754176664,
+        "Keys": {
+          "userId": {
+            "S": "user-123"
+          }
+        },
+        "NewImage": {
+          "profileLastUpdatedAt": {
+            "S": "2025-08-02T23:17:44.614305Z"
+          },
+          "score": {
+            "N": "576"
+          },
+          "finActivityMetrics": {
+            "M": {
+              "onTimePaymentRate": {
+                "N": "0.99"
+              },
+              "totalCreditExpenditure": {
+                "N": "4509.5"
+              }
+            }
+          },
+          "statementMetrics": {
+            "M": {
+              "perStatement": {
+                "L": [
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "-6.95"
+                      },
+                      "balanceVolatility": {
+                        "N": "2.05"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "bank-ecobank-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "11469.68"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-28T12:43:16.153143"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "11476.64"
+                      },
+                      "id": {
+                        "S": "aksfoea-akon-nvow.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/bank-ecobank-statement/user-123/aksfoea-akon-nvow.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "51.3"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "181.36"
+                      },
+                      "balanceVolatility": {
+                        "N": "133.27"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "1483.08"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:25.527867"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "1301.72"
+                      },
+                      "id": {
+                        "S": "kwkona-ankwla-nknew.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/kwkona-ankwla-nknew.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "63.58"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "102.58"
+                      },
+                      "balanceVolatility": {
+                        "N": "0.63"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "9854.16"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:35.836832"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "9751.59"
+                      },
+                      "id": {
+                        "S": "daoanke-ksfjko-jkaljkk.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/daoanke-ksfjko-jkaljkk.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "0.5"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "119.52"
+                      },
+                      "balanceVolatility": {
+                        "N": "1.68"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "4508.32"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:36.613443"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "4388.8"
+                      },
+                      "id": {
+                        "S": "kjqornk-jkonkoa-fnkfwkl.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/kjqornk-jkonkoa-fnkfwkl.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "2.02"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "coreProfile": {
+            "M": {
+              "address": {
+                "S": "456 Baobab Avenue, Kumasi"
+              },
+              "confirmedEmployment": {
+                "BOOL": true
+              }
+            }
+          },
+          "userId": {
+            "S": "user-123"
+          }
+        },
+        "OldImage": {
+          "profileLastUpdatedAt": {
+            "S": "2025-08-02T23:15:46.130707Z"
+          },
+          "score": {
+            "N": "576"
+          },
+          "finActivityMetrics": {
+            "M": {
+              "onTimePaymentRate": {
+                "N": "0.99"
+              },
+              "totalCreditExpenditure": {
+                "N": "4509.5"
+              }
+            }
+          },
+          "statementMetrics": {
+            "M": {
+              "perStatement": {
+                "L": [
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "-6.95"
+                      },
+                      "balanceVolatility": {
+                        "N": "2.05"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "bank-ecobank-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "11469.68"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-28T12:43:16.153143"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "11476.64"
+                      },
+                      "id": {
+                        "S": "aksfoea-akon-nvow.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/bank-ecobank-statement/user-123/aksfoea-akon-nvow.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "51.3"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "181.36"
+                      },
+                      "balanceVolatility": {
+                        "N": "133.27"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "1483.08"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:25.527867"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "1301.72"
+                      },
+                      "id": {
+                        "S": "kwkona-ankwla-nknew.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/kwkona-ankwla-nknew.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "63.58"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "102.58"
+                      },
+                      "balanceVolatility": {
+                        "N": "0.63"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "9854.16"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:35.836832"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "9751.59"
+                      },
+                      "id": {
+                        "S": "daoanke-ksfjko-jkaljkk.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/daoanke-ksfjko-jkaljkk.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "0.5"
+                      }
+                    }
+                  },
+                  {
+                    "M": {
+                      "disposableIncome": {
+                        "N": "119.52"
+                      },
+                      "balanceVolatility": {
+                        "N": "1.68"
+                      },
+                      "expenditureOutlierCount": {
+                        "N": "0"
+                      },
+                      "statementType": {
+                        "S": "momo-mtn-statement"
+                      },
+                      "avgMonthlyIncome": {
+                        "N": "4508.32"
+                      },
+                      "analysisDate": {
+                        "S": "2025-07-26T11:52:36.613443"
+                      },
+                      "avgMonthlyExpenditure": {
+                        "N": "4388.8"
+                      },
+                      "id": {
+                        "S": "kjqornk-jkonkoa-fnkfwkl.csv"
+                      },
+                      "sourceFile": {
+                        "S": "processed/momo-mtn-statement/user-123/kjqornk-jkonkoa-fnkfwkl.csv"
+                      },
+                      "avgLowestMonthlyBalance": {
+                        "N": "2.02"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "coreProfile": {
+            "M": {
+              "address": {
+                "S": "456 Baobab Avenue, Kumasi"
+              },
+              "confirmedEmployment": {
+                "BOOL": true
+              }
+            }
+          },
+          "userId": {
+            "S": "user-123"
+          }
+        },
+        "SequenceNumber": "114668000000617778269465238",
+        "SizeBytes": 3044,
+        "StreamViewType": "NEW_AND_OLD_IMAGES"
+      },
+      "eventSourceARN": "arn:aws:dynamodb:us-east-1:774043130115:table/CreditProfileTable/stream/2025-07-11T07:41:01.382"
+    }
+  ]
+}
