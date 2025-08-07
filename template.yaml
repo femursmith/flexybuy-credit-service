@@ -82,6 +82,24 @@ Resources:
                 Effect: Allow
                 Action: s3:PutObject
                 Resource: !Sub "arn:aws:s3:::${AWS::StackName}-documents-processed-bucket/*"
+        - PolicyName: DynamoDBReadWriteCreditLimitTable
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: AllowReadCreditLimitTable
+                Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}-credit-profile-table"
+              - Sid: AllowWriteCreditLimitTable
+                Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:BatchWriteItem
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${AWS::StackName}-credit-profile-table"
 
   CsvDestinationBucket:
     Type: AWS::S3::Bucket
