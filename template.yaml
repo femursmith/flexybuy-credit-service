@@ -182,6 +182,10 @@ Resources:
                 Rules:
                   - Name: suffix
                     Value: .csv
+      Environment:
+        Variables:
+          CREDIT_PROFILE_TABLE: !Ref CreditProfileTable
+          
       
   CreditLimitEngineFunction:
     Type: AWS::Serverless::Function
@@ -259,6 +263,9 @@ Resources:
             Path: /fin_activity
             Method: post
             ApiId: !Ref HttpApi
+      Environment:
+        Variables:
+          CREDIT_PROFILE_TABLE: !Ref CreditProfileTable
 
   CreditLimitGetFunction:
     Type: AWS::Serverless::Function
@@ -280,6 +287,9 @@ Resources:
             Path: /limit/{userId}
             Method: get
             ApiId: !Ref HttpApi
+      Environment:
+        Variables:
+          DYNAMODB_TABLE: !Ref CreditLimitTable
 
   ErrorHandlingFunction:
     Type: AWS::Serverless::Function

@@ -19,7 +19,7 @@ class DecimalEncoder(json.JSONEncoder):
 
 # --- Configuration ---
 # Use an environment variable for the table name for better configuration management.
-TABLE_NAME = os.environ.get('DYNAMODB_TABLE', 'CreditProfileTable')
+TABLE_NAME = os.environ.get('CreditLimitTable')
 
 # --- AWS Client Initialization ---
 # Initialize the DynamoDB resource outside the handler for performance reuse.

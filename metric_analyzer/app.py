@@ -10,7 +10,7 @@ import statistics
 from decimal import Decimal
 
 # --- Configuration ---
-DYNAMODB_TABLE = os.environ.get('DYNAMODB_TABLE')
+DYNAMODB_TABLE = os.environ.get('CREDIT_PROFILE_TABLE')
 
 # --- AWS Client Initialization ---
 s3_client = boto3.client('s3')

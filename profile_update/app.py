@@ -1,9 +1,10 @@
 import json
 import boto3
+import os
 from datetime import datetime
 
 dynamodb = boto3.client('dynamodb')
-TABLE_NAME = 'CreditProfileTable'
+TABLE_NAME = os.environ.get('CREDIT_PROFILE_TABLE')
 
 def lambda_handler(event, context):
     routeKey = event.get('routeKey', '')
