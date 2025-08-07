@@ -262,6 +262,8 @@ Resources:
         - AWSLambdaBasicExecutionRole # For CloudWatch Logs
         - DynamoDBWritePolicy:
             TableName: !Ref CreditProfileTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref CreditProfileTable
       Events:
         ProfileApi:
           Type: HttpApi
