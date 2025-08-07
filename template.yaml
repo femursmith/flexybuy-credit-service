@@ -139,12 +139,12 @@ Resources:
       CodeUri: pdf_converter/
       Handler: app.lambda_handler
       Runtime: python3.11
-      MemorySize: 2048 # Higher memory for processing libraries
-      Timeout: 90 # Longer timeout for file conversion
+      MemorySize: 2048 
+      Timeout: 90 
       Layers:
         - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p311-PyMuPDF:10
       Policies:
-        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - AWSLambdaBasicExecutionRole 
         - S3ReadPolicy:
             BucketName: !Ref StatementUploadsBucket
         - S3WritePolicy:
@@ -155,6 +155,10 @@ Resources:
           Properties:
             Queue: !GetAtt S3UploadQueue.Arn
             BatchSize: 1
+      Environment:
+        Variables:
+          CSV_DESTINATION_BUCKET: !Ref CsvDestinationBucket
+          
 
 
   MetricAnalyzerFunction:
@@ -186,12 +190,12 @@ Resources:
       CodeUri: credit_limit_engine/
       Handler: app.lambda_handler
       Runtime: python3.11
-      MemorySize: 2048 # Higher memory for fuzzy logic libraries
-      Timeout: 90 # Longer timeout for complex calculations
+      MemorySize: 2048 
+      Timeout: 90 
       Layers:
         - !Ref CreditLimitEngineLayers
       Policies:
-        - AWSLambdaBasicExecutionRole # For CloudWatch Logs
+        - AWSLambdaBasicExecutionRole 
         - DynamoDBStreamReadPolicy:
             TableName: !Ref CreditProfileTable
             StreamName: !GetAtt CreditProfileTable.StreamArn

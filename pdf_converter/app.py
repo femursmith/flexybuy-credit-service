@@ -6,7 +6,7 @@ from io import StringIO
 import fitz  # PyMuPDF library
 
 # --- Configuration ---
-DESTINATION_BUCKET = os.environ.get('DESTINATION_BUCKET')
+DESTINATION_BUCKET = os.environ.get('CSV_DESTINATION_BUCKET')
 
 
 # --- AWS Client Initialization ---

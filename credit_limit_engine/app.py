@@ -11,8 +11,8 @@ import skfuzzy as fuzz
 from skfuzzy import control as ctrl
 
 # --- Configuration ---
-CREDIT_PROFILE_TABLE = os.environ.get('CREDIT_PROFILE_TABLE', 'CreditProfileTable')
-CREDIT_LIMIT_TABLE = os.environ.get('CREDIT_LIMIT_TABLE', 'CreditLimitTable')
+CREDIT_PROFILE_TABLE = os.environ.get('CREDIT_PROFILE_TABLE')
+CREDIT_LIMIT_TABLE = os.environ.get('CREDIT_LIMIT_TABLE')
 CONFIDENCE_SCORE = float(os.environ.get('CONFIDENCE_SCORE', '0.8')) # Admin-configurable parameter
 MODEL_VERSION = "v1.0.0"
 MINIMUM_CREDIT_LIMIT = 50
