@@ -309,7 +309,7 @@ Resources:
             ApiId: !Ref HttpApi
       Environment:
         Variables:
-          DYNAMODB_TABLE: !Ref CreditLimitTable
+          CreditLimitTable: !Ref CreditLimitTable
 
   CorrectionFactorUpdateFunction:
     Type: AWS::Serverless::Function

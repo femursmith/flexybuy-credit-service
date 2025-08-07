@@ -8,6 +8,13 @@ table = dynamodb.Table(table_name)
 
 def lambda_handler(event, context):
     user_id = event.get('pathParameters', {}).get('userId')
+   
+    if not user_id:
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "Missing userId in path."})
+        }
+    
     user_exists = False
     try:
         resp = dynamodb.get_item(
@@ -24,11 +31,6 @@ def lambda_handler(event, context):
         return {
             "statusCode": 404,
             "body": json.dumps({"message": "User not found."})
-        }
-    if not user_id:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"message": "Missing userId in path."})
         }
 
 

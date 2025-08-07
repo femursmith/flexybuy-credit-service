@@ -3,9 +3,7 @@ import boto3
 import os
 from decimal import Decimal
 
-# --- Helper to handle DynamoDB's Decimal type ---
-# DynamoDB stores numbers as Decimal objects, which are not directly JSON serializable.
-# This helper function converts them to standard floats or ints.
+
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
