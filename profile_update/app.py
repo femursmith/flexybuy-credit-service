@@ -87,7 +87,7 @@ def lambda_handler(event, context):
             if correction_factor is None or not (0 < correction_factor < 1):
                 return _response(400, 'correction_factor must be between 0 and 1 (exclusive).')
 
-            update_expression = 'SET correctionFactor = :cf, profileLastUpdatedAt = :updatedAt'
+            update_expression = 'SET correctionFactor = :correctionFactor, profileLastUpdatedAt = :updatedAt'
             expression_values = {
                 ':correctionFactor': {'N': str(correction_factor)},
                 ':updatedAt': {'S': timestamp}
